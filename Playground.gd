@@ -3,6 +3,7 @@ extends Node2D
 
 enum {LEFT, RIGHT, UP, DOWN}
 const SWIPE_MINI_LENGTH = 100
+const GAME_TARGET = 8
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
@@ -13,6 +14,7 @@ var move_dir = LEFT
 var move_target = Vector2()
 var start = false
 var time = 0
+var need_move = false
 var time_direction = 1
 var Tile = preload("res://Tile.tscn")
 var velocity = Vector2()
@@ -33,6 +35,27 @@ func is_exist(vec):
 		if i.ps == vec:
 			return true
 	return false
+	
+func is_move():
+	if need_move:
+		need_move = false
+		return true
+	else:
+		return false
+	
+func is_success():
+	pass
+	
+func set_move_status():
+	for i in instance_list:
+		if i.ps != i.target_pos:
+			need_move = true
+			return
+	need_move = false
+	
+func is_fail():
+	pass
+	
 
 func new_tile():
 	var t = Tile.instance()
@@ -44,7 +67,12 @@ func new_tile():
 	while is_exist(rp):
 		print("new tile againt")
 		rp = rand_pos()
-	t.set_text("4" if randf()>0.9 else "2")
+		
+	if randf() > 0.95:
+		t.set_second()
+	else:
+		t.set_first()
+
 	t.position = pos_matrix[int(rp.x)][int(rp.y)]
 	t.ps = rp
 	add_child(t)
@@ -68,7 +96,11 @@ func _on_swipe_ready(dir):
 	set_swipe(dir)
 
 func _on_tile_update_text(tile):
+	tile.is_update = false
 	tile.update_text()
+	print("tile number update to ", tile.get_num())
+	if tile.get_num() >= GAME_TARGET:
+		print("Game Success")
 
 
 # Called when the node enters the scene tree for the first time.
@@ -85,13 +117,6 @@ func _ready():
 	print(pos_matrix)
 	new_tile()
 	new_tile()
-	#add_tile(0, 3)
-	#add_tile(0, 1)
-	#add_tile(0, 0)
-	#add_tile(0, 2)
-	#add_tile(3, 0)
-	#add_tile(1, 0)
-	#add_tile(0, 0)
 	#add_tile(2, 0)
 	#print(point1)
 	#print(point2)
@@ -128,6 +153,8 @@ func set_swipe(dir):
 		print("start move")
 		start = true
 		set_target_vector()
+		set_move_status()
+		print("move: ", need_move)
 
 
 func finish_tile(tile):
@@ -136,8 +163,7 @@ func finish_tile(tile):
 	#print("---------finish tile-----------")
 	#print(tile.ps, " to ", tile.target_pos, "; up: ", tile.is_update, " fin: ", tile.is_finish)
 	if tile.is_update:
-		tile.update_text()
-		tile.is_update = false
+		_on_tile_update_text(tile)
 	if tile.is_finish:
 		tile.queue_free()
 		instance_list.erase(tile)
@@ -329,7 +355,8 @@ func _process(delta):
 			print("all stop")
 			start = false
 			time = 0
-			new_tile()
+			if is_move():
+				new_tile()
 			print("---------after all stop------------")
 			for i in instance_list:
 				print("vec: ", i.ps, "pos", i.position, "num: ", i.get_num())
