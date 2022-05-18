@@ -10,7 +10,7 @@ config_version=4
 
 [application]
 
-config/name="1024"
+config/name="2048"
 run/main_scene="res://Playground.tscn"
 boot_splash/image="res://assert/bg2.png"
 config/icon="res://icon.png"
@@ -21,6 +21,7 @@ window/size/width=720
 window/size/height=1024
 window/handheld/orientation="portrait"
 window/stretch/mode="viewport"
+window/stretch/aspect="keep_width"
 
 [input_devices]
 
