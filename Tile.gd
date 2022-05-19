@@ -42,9 +42,11 @@ func _ready():
 	self.size = size
 	POSITION = Vector2(-(size.x/2), -(size.y/2))
 	$Label.rect_size = size
+	$Label.rect_position = POSITION
 	pass # Replace with function body.
 
-func _init():
+func set_size(size):
+	self.size = size
 	pass
 
 func set_first():

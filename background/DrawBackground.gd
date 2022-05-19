@@ -6,14 +6,14 @@ extends Node2D
 # var b = "text"
 
 
-const RADIUS = 0
+const RADIUS = 5
 const POSITION = Vector2(0, 0)
 
 
 export(int) var width =  500
 export(int) var height =  500
-export(int) var tile_row = 4
-export(int) var tile_column = 4
+export(int) var tile_row = 5
+export(int) var tile_column = 5
 
 var item_temp = preload("res://background/BackgroundItem.tscn")
 var style = StyleBoxFlat.new()
@@ -26,7 +26,7 @@ var sub_tile_pos_matrix = []
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	style.set_corner_radius_all(RADIUS)
-	style.bg_color = Color(1, 0, 0, 1)
+	style.bg_color = Color("bbada0")
 	
 	
 	
@@ -55,6 +55,9 @@ func get_tile_width():
 	
 func get_tile_height():
 	return sub_tile_height
+
+func get_tile_size():
+	return Vector2(sub_tile_width, sub_tile_height)
 
 func get_pos_matrix():
 	return sub_tile_pos_matrix

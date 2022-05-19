@@ -13,7 +13,7 @@ var size = Vector2(width, width)
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	style.set_corner_radius_all(RADIUS)
-	style.bg_color = Color(0.6, 0.6, 0.6, 1)
+	style.bg_color = Color("d6cdc4")
 
 func set_size(size):
 	self.size = size

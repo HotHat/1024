@@ -22,7 +22,7 @@ var velocity = Vector2()
 var touch_start_pos
 
 var pos_matrix = []
-
+var tile_size = Vector2()
 
 var instance_list = []
 
@@ -59,6 +59,7 @@ func is_fail():
 
 func new_tile():
 	var t = Tile.instance()
+	t.set_size(tile_size)
 	var rp = rand_pos()
 
 	if len(instance_list) == 16:
@@ -118,6 +119,7 @@ func _ready():
 	
 	$DrawBackground.position = Vector2(margin, sz.y/2-wd/2)
 	$DrawBackground.set_size(Vector2(wd, wd))
+	tile_size = $DrawBackground.get_tile_size()
 
 	print("draw_background position in playground: ", $DrawBackground.position)
 	pos_matrix = $DrawBackground.get_pos_matrix()
