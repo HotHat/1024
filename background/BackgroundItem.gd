@@ -23,7 +23,7 @@ func set_color(color):
 
 
 func _draw():
-    draw_style_box(style, Rect2(POSITION, size))
+	draw_style_box(style, Rect2(POSITION, size))
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):

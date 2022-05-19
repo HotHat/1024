@@ -12,7 +12,9 @@ export (bool) var is_finish = false
 
 const FIRST = 2
 const SECOND = 4
+const RADIUS = 5
 
+var POSITION = Vector2(0, 0)
 var cls = {
 	2: Color("#eee4da"),
 	4: Color("#ede0c8"),
@@ -25,32 +27,48 @@ var cls = {
 	512: Color("#edc850"),
 	1024: Color("#edc53f")
 }
+var style = StyleBoxFlat.new()
+var color = null
+var size = Vector2(142, 142)
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	style.set_corner_radius_all(RADIUS)
+	if randf() > 0.95:
+		set_second()
+	else:
+		set_first()
+	#style.bg_color = Color(0, 1, 0.8, 1)
+	self.size = size
+	POSITION = Vector2(-(size.x/2), -(size.y/2))
+	$Label.rect_size = size
 	pass # Replace with function body.
 
+func _init():
+	pass
 
 func set_first():
-	$Label.text = str(FIRST)
-	$Sprite.self_modulate = cls[FIRST]
+	set_text(str(FIRST))
 	
 func set_second():
-	$Label.text = str(SECOND)
-	$Sprite.self_modulate = cls[SECOND]
+	set_text(str(SECOND))
 
 func get_num():
 	return int($Label.text)
 
 func set_text(txt):
 	$Label.text = str(txt)
-	print(cls)
-	$Sprite.self_modulate = cls[int($Label.text)]
+	style.bg_color = cls[int($Label.text)]
+	update()
 	
 func update_text():
 	var x = int($Label.text)
 	x += x
 	set_text(x)
 
+
+func _draw():
+	draw_style_box(style, Rect2(POSITION, size))
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass

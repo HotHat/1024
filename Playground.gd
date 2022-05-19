@@ -68,10 +68,7 @@ func new_tile():
 		print("new tile againt")
 		rp = rand_pos()
 		
-	if randf() > 0.95:
-		t.set_second()
-	else:
-		t.set_first()
+
 
 	t.position = pos_matrix[int(rp.x)][int(rp.y)]
 	t.ps = rp
@@ -108,18 +105,31 @@ func _ready():
 	randomize()
 	connect("swipe_ready", self, "_on_swipe_ready")
 	var bg = $Background.position
-	pos_matrix = [
-		[$Background/Pos00.position+bg, $Background/Pos01.position+bg, $Background/Pos02.position+bg, $Background/Pos03.position+bg],
-		[$Background/Pos10.position+bg, $Background/Pos11.position+bg, $Background/Pos12.position+bg, $Background/Pos13.position+bg],
-		[$Background/Pos20.position+bg, $Background/Pos21.position+bg, $Background/Pos22.position+bg, $Background/Pos23.position+bg],
-		[$Background/Pos30.position+bg, $Background/Pos31.position+bg, $Background/Pos32.position+bg, $Background/Pos33.position+bg],
-	]
+	#pos_matrix = [
+	#	[$Background/Pos00.position+bg, $Background/Pos01.position+bg, $Background/Pos02.position+bg, $Background/Pos03.position+bg],
+	#	[$Background/Pos10.position+bg, $Background/Pos11.position+bg, $Background/Pos12.position+bg, $Background/Pos13.position+bg],
+	#	[$Background/Pos20.position+bg, $Background/Pos21.position+bg, $Background/Pos22.position+bg, $Background/Pos23.position+bg],
+	#	[$Background/Pos30.position+bg, $Background/Pos31.position+bg, $Background/Pos32.position+bg, $Background/Pos33.position+bg],
+	#]
+	print("view_port: ", get_viewport_rect().size)
+	var sz = get_viewport_rect().size
+	var margin = 50
+	var wd = min(sz.x, sz.y) - margin*2
+	
+	$DrawBackground.position = Vector2(margin, sz.y/2-wd/2)
+	$DrawBackground.set_size(Vector2(wd, wd))
+
+	print("draw_background position in playground: ", $DrawBackground.position)
+	pos_matrix = $DrawBackground.get_pos_matrix()
 	print(pos_matrix)
+	
+	
 	new_tile()
 	new_tile()
 	#add_tile(2, 0)
 	#print(point1)
 	#print(point2)
+	
 	for i in instance_list:
 		print(i.position)
 	pass # Replace with function body.
@@ -291,7 +301,7 @@ func set_target_num(p, dir):
 	var ln = len(p)
 
 	while lst_len > -1:
-	    # if lst_len < len(p) - 1:
+		# if lst_len < len(p) - 1:
 		#print(lst_len, "----------", len(p)-2, "---------", p[lst_len].get_num(), "-------")
 		if lst_len <= len(p) - 2 and p[lst_len].get_num() == p[lst_len + 1].get_num():
 			if lst_len+2 < len(p) and p[lst_len].get_num() == p[lst_len + 2].get_num() and not is_del:
