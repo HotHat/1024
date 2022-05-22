@@ -21,3 +21,5 @@ valign = 1
 __meta__ = {
 "_editor_description_": ""
 }
+
+[node name="Tween" type="Tween" parent="."]

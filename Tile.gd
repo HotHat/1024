@@ -68,6 +68,13 @@ func update_text():
 	x += x
 	set_text(x)
 
+func zoom():
+	var from = Vector2(1, 1)
+	var to = Vector2(1.05, 1.05)
+	$Tween.interpolate_property(self, "scale", from, to, 0.25, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
+	$Tween.start()
+	$Tween.interpolate_property(self, "scale", to, from, 0.25, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
+	$Tween.start()
 
 func _draw():
 	draw_style_box(style, Rect2(POSITION, size))

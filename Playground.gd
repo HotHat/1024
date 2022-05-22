@@ -176,6 +176,8 @@ func finish_tile(tile):
 	#print(tile.ps, " to ", tile.target_pos, "; up: ", tile.is_update, " fin: ", tile.is_finish)
 	if tile.is_update:
 		_on_tile_update_text(tile)
+		tile.zoom()
+		
 	if tile.is_finish:
 		tile.queue_free()
 		instance_list.erase(tile)
