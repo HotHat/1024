@@ -17,6 +17,8 @@ var time = 0
 var need_move = false
 var time_direction = 1
 var Tile = preload("res://Tile.tscn")
+var CorrectSound = preload("res://audio/tile_match.wav")
+
 var velocity = Vector2()
 
 var touch_start_pos
@@ -24,7 +26,7 @@ var touch_start_pos
 var pos_matrix = []
 var tile_size = Vector2()
 var tile_row = 4
-var tile_column = 5
+var tile_column = 4
 var tile_matrix = []
 
 var instance_list = []
@@ -32,6 +34,10 @@ var instance_list = []
 func rand_pos():
 	var rn = randi() % (tile_row*tile_column)
 	return Vector2(int(rn/tile_row), rn%tile_column)
+
+func play_match():
+	$AudioStreamPlayer2D.stream = CorrectSound
+	$AudioStreamPlayer2D.play()
 
 func is_exist(vec):
 	if tile_matrix[vec.x][vec.y] != null:
@@ -176,10 +182,16 @@ func _ready():
 	print(pos_matrix)
 	
 	
-	#new_tile()
-	#new_tile()
-	add_tile(2, 0)
-	add_tile(2, 3)
+	new_tile()
+	new_tile()
+	#add_tile(2, 0)
+	#add_tile(2, 1)
+	#add_tile(2, 2)
+	#add_tile(2, 3)
+	#add_tile(1, 2)
+	#add_tile(3, 2)
+	#add_tile(0, 2)
+	#add_tile(2, 2)
 	#print(point1)
 	#print(point2)
 	print_tile_matrix()
@@ -233,6 +245,7 @@ func finish_tile(tile):
 	if tile.is_update:
 		_on_tile_update_text(tile)
 		tile.zoom()
+		play_match()
 		
 	if tile.is_finish:
 		tile.queue_free()
@@ -286,7 +299,7 @@ func get_row(dir, row):
 	for i in range(tile_column):
 		if tile_matrix[row][i] != null:
 			p.append(tile_matrix[row][i])
-	if dir == RIGHT and not p.empty():
+	if dir == LEFT and not p.empty():
 		p.invert()
 	return p
 
@@ -389,8 +402,8 @@ func _process(delta):
 			start = false
 			time = 0
 			if is_move():
-				pass
-				#new_tile()
+				#pass
+				new_tile()
 			print("---------after all stop------------")
 			for i in instance_list:
 				print("vec: ", i.ps, "pos", i.position, "num: ", i.get_num())

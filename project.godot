@@ -12,7 +12,6 @@ config_version=4
 
 config/name="2048"
 run/main_scene="res://Playground.tscn"
-boot_splash/image="res://assert/bg2.png"
 config/icon="res://icon.png"
 
 [display]
