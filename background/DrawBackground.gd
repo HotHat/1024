@@ -12,8 +12,8 @@ const POSITION = Vector2(0, 0)
 
 export(int) var width =  500
 export(int) var height =  500
-export(int) var tile_row = 5
-export(int) var tile_column = 5
+export(int) var tile_row = 4
+export(int) var tile_column = 4
 
 var item_temp = preload("res://background/BackgroundItem.tscn")
 var style = StyleBoxFlat.new()
@@ -62,12 +62,19 @@ func get_tile_size():
 func get_pos_matrix():
 	return sub_tile_pos_matrix
 
+func set_row_column(row, col, size):
+	self.tile_row = row
+	self.tile_column = col
+	set_size(size)
+	print("draw_background position: ", position, tile_row, tile_column, size)
+	draw_children()
+	update()
+
 func set_size(size):
 	width = size.x
 	height = size.y
 	self.size = size
-	print("draw_background position: ", position)
-	draw_children()
+#	draw_children()
 
 func _draw():
 	draw_style_box(style, Rect2(POSITION, size))

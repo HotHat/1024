@@ -23,17 +23,19 @@ var touch_start_pos
 
 var pos_matrix = []
 var tile_size = Vector2()
+var tile_row = 4
+var tile_column = 5
+var tile_matrix = []
 
 var instance_list = []
 
 func rand_pos():
-	var rn = randi() % 16
-	return Vector2(int(rn/4), rn%4)
+	var rn = randi() % (tile_row*tile_column)
+	return Vector2(int(rn/tile_row), rn%tile_column)
 
 func is_exist(vec):
-	for i in instance_list:
-		if i.ps == vec:
-			return true
+	if tile_matrix[vec.x][vec.y] != null:
+		return true
 	return false
 	
 func is_move():
@@ -47,44 +49,91 @@ func is_success():
 	pass
 	
 func set_move_status():
-	for i in instance_list:
-		if i.ps != i.target_pos:
-			need_move = true
-			return
+	for x in range(tile_row):
+		for y in range(tile_column):
+			var i = tile_matrix[x][y]
+			if i != null and i.ps != i.target_pos:
+				need_move = true
+				return
 	need_move = false
 	
 func is_fail():
 	pass
+
+func init_tile_matrix():
+	for x in range(tile_row):
+		var i = []
+		for y in range(tile_column):
+			i.append(null)
+		tile_matrix.append(i)
+		
+func print_tile_matrix():
+	for x in range(tile_row):
+		for y in range(tile_column):
+			var i = tile_matrix[x][y]
+			if i == null:
+				print(null)
+			else:
+				print(i.ps, i.get_num())
+		print("-------------")
+		
+func move_tile():
+	for x in range(tile_row):
+		for y in range(tile_column):
+			var tile = tile_matrix[x][y]
+			if tile != null:
+				move_target = get_target_vector(tile)
+				tile.position = lerp(tile.position, move_target, time / 0.5)
 	
+func get_active_tile():
+	var p = []
+	for x in range(tile_row):
+		for y in range(tile_column):
+			var i = tile_matrix[x][y]
+			if i != null:
+				p.append(i)
+	return p
+
+func is_full():
+	var i = 0
+	for x in range(tile_row):
+		for y in range(tile_column):
+			if tile_matrix[x][y] != null:
+				i = i + 1
+	if i == (tile_row * tile_column):
+		return true
+	else:
+		return false
 
 func new_tile():
 	var t = Tile.instance()
 	t.set_size(tile_size)
 	var rp = rand_pos()
 
-	if len(instance_list) == 16:
+	if is_full():
 		return
-	# if exist run againt
+	# if exist run againt/
 	while is_exist(rp):
 		print("new tile againt")
 		rp = rand_pos()
 		
-
-
 	t.position = pos_matrix[int(rp.x)][int(rp.y)]
 	t.ps = rp
 	add_child(t)
 	print("add tile at ", rp)
-	instance_list.append(t)
+	# instance_list.append(t)
+	tile_matrix[rp.x][rp.y] = t
 
 func add_tile(row, col):
 	var t = Tile.instance()
+	t.set_size(tile_size)
 	var rp = Vector2(row, col)
-	t.set_text("1")
+	t.set_text("2")
 	t.position = pos_matrix[int(rp.x)][int(rp.y)]
 	t.ps = rp
 	add_child(t)
-	instance_list.append(t)
+	# instance_list.append(t)
+	tile_matrix[rp.x][rp.y] = t
 
 # touch swape with direction
 signal swipe_ready(dir)
@@ -104,6 +153,7 @@ func _on_tile_update_text(tile):
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	randomize()
+	init_tile_matrix()
 	connect("swipe_ready", self, "_on_swipe_ready")
 	#var bg = $Background.position
 	#pos_matrix = [
@@ -118,7 +168,7 @@ func _ready():
 	var wd = min(sz.x, sz.y) - margin*2
 	
 	#$DrawBackground.position = Vector2(margin, sz.y/2-wd/2)
-	$DrawBackground.set_size(Vector2(wd, wd))
+	$DrawBackground.set_row_column(tile_row, tile_column, Vector2(wd, wd))
 	tile_size = $DrawBackground.get_tile_size()
 
 	print("draw_background position in playground: ", $DrawBackground.position)
@@ -126,16 +176,17 @@ func _ready():
 	print(pos_matrix)
 	
 	
-	new_tile()
-	new_tile()
-	#add_tile(2, 0)
+	#new_tile()
+	#new_tile()
+	add_tile(2, 0)
+	add_tile(2, 3)
 	#print(point1)
 	#print(point2)
-	
-	for i in instance_list:
-		print(i.position)
-		
-		
+	print_tile_matrix()
+#	for i in instance_list:
+#		print(i.position)
+
+
 	#$UI/HomeButton.set_modulate(Color("#ff0000"))
 	pass # Replace with function body.
 
@@ -177,47 +228,53 @@ func finish_tile(tile):
 	#print("ps: ", tile.ps)
 	#print("---------finish tile-----------")
 	#print(tile.ps, " to ", tile.target_pos, "; up: ", tile.is_update, " fin: ", tile.is_finish)
+	tile_matrix[tile.ps.x][tile.ps.y] = null
+	tile.ps = tile.target_pos
 	if tile.is_update:
 		_on_tile_update_text(tile)
 		tile.zoom()
 		
 	if tile.is_finish:
 		tile.queue_free()
-		instance_list.erase(tile)
-		
+
+	if not tile.is_finish:
+		tile_matrix[tile.ps.x][tile.ps.y] = tile
+
 func is_all_stop():
 	var p = []
-	for tile in instance_list:
-		var n = tile.target_pos
-		move_target = pos_matrix[n.x][n.y]
-		#print("tile:", tile.ps, " forahead: ", n)
-		if move_dir == LEFT:
-			if tile.position.x > move_target.x:
-				return false
-			else:
-				tile.ps.y = n.y
-				p.append(tile)
+	var tile = null
+	for x in range(tile_row):
+		for y in range(tile_column):
+			tile = tile_matrix[x][y]
+			if tile == null:
+				continue
+				
+			var n = tile.target_pos
+			move_target = pos_matrix[n.x][n.y]
+			#print("tile:", tile.ps, " forahead: ", n)
+			if move_dir == LEFT:
+				if tile.position.x > move_target.x:
+					return false
+				else:
+					p.append(tile)
 
-		elif move_dir == RIGHT:
-			if tile.position.x < move_target.x:
-				return false
-			else:
-				tile.ps.y = n.y
-				p.append(tile)
+			elif move_dir == RIGHT:
+				if tile.position.x < move_target.x:
+					return false
+				else:
+					p.append(tile)
 
-		elif move_dir == UP:
-			if tile.position.y > move_target.y:
-				return false
-			else:
-				tile.ps.x = n.x
-				p.append(tile)
+			elif move_dir == UP:
+				if tile.position.y > move_target.y:
+					return false
+				else:
+					p.append(tile)
 
-		elif move_dir == DOWN:
-			if tile.position.y < move_target.y:
-				return false
-			else:
-				p.append(tile)
-				tile.ps.x = n.x
+			elif move_dir == DOWN:
+				if tile.position.y < move_target.y:
+					return false
+				else:
+					p.append(tile)
 	for i in p:
 		finish_tile(i)
 		#print("is_finish: ", tile.is_finish, " is_update: ", tile.is_update)
@@ -226,77 +283,42 @@ func is_all_stop():
 
 func get_row(dir, row):
 	var p = []
-	for i in instance_list:
-		print("get row", i.ps)
-		if i.ps.x == row:
-			if len(p) == 0:
-				p.append(i)
-			else:
-				print("i y: ", i.ps.y)
-				for d in range(len(p)):
-					if dir == RIGHT:
-						#print("p y: ", p[d].ps.y)
-						#print("d: ", d, " len: ",  len(p)-1)
-						#print(p[d].ps.y, "----", i.ps.y, "----", d==len(p)-1, "----")
-						if i.ps.y < p[d].ps.y:
-							p.insert(d, i)
-							break
-						elif p[d].ps.y < i.ps.y and ((d == len(p) - 1) or i.ps.y < p[d+1].ps.y):
-							p.insert(d+1, i)
-							break
-					else:
-						if i.ps.y > p[d].ps.y:
-							p.insert(d, i)
-							break
-						elif p[d].ps.y > i.ps.y and ((d == len(p) - 1) or i.ps.y > p[d+1].ps.y):
-							p.insert(d+1, i)
-							break
+	for i in range(tile_column):
+		if tile_matrix[row][i] != null:
+			p.append(tile_matrix[row][i])
+	if dir == RIGHT and not p.empty():
+		p.invert()
 	return p
 
-func get_column(dir, row):
+func get_column(dir, col):
 	var p = []
-	for i in instance_list:
-		if i.ps.y == row:
-			if len(p) == 0:
-				p.append(i)
-			else:
-				for d in range(len(p)):
-					if dir == DOWN:
-						if i.ps.x < p[d].ps.x:
-							p.insert(d, i)
-							break
-						elif p[d].ps.x < i.ps.x and ((d == len(p) - 1) or i.ps.x < p[d+1].ps.x):
-							p.insert(d+1, i)
-							break
-					else:
-						if i.ps.x > p[d].ps.x:
-							p.insert(d, i)
-							break
-						elif p[d].ps.x > i.ps.x and ((d == len(p) - 1) or i.ps.x > p[d+1].ps.x):
-							p.insert(d+1, i)
-							break
+	for i in range(tile_row):
+		if tile_matrix[i][col] != null:
+			p.append(tile_matrix[i][col])
+	if dir == UP and not p.empty():
+		p.invert()
 	return p
 
 func set_target_vector():
 	var p = []
-	for i in [0, 1, 2, 3]:
-		if move_dir == RIGHT:
+	if move_dir == LEFT or move_dir == RIGHT:
+		for i in range(tile_row):
 			p = get_row(move_dir, i)
-
-		elif move_dir == LEFT:
-			p = get_row(move_dir, i)
-
-		elif move_dir == DOWN:
+			# show all target
+			set_target_num(p, move_dir)
+			print("------------------move target-------------------")
+			for j in p:
+				print(j.ps, " to ", j.target_pos, "; up: ", j.is_update, " fin: ", j.is_finish)
+			print("------------------end move target---------------")
+	if move_dir == UP or move_dir == DOWN:
+		for i in range(tile_column):
 			p = get_column(move_dir, i)
-
-		elif move_dir == UP:
-			p = get_column(move_dir, i)
-		# show all target
-		set_target_num(p, move_dir)
-		print("------------------move target-------------------")
-		for j in p:
-			print(j.ps, " to ", j.target_pos, "; up: ", j.is_update, " fin: ", j.is_finish)
-		print("------------------end move target---------------")
+			# show all target
+			set_target_num(p, move_dir)
+			print("------------------move target-------------------")
+			for j in p:
+				print(j.ps, " to ", j.target_pos, "; up: ", j.is_update, " fin: ", j.is_finish)
+			print("------------------end move target---------------")
 		# if len(p) > 0:
 	pass
  
@@ -329,7 +351,7 @@ func set_target_num(p, dir):
 				overlay += 1
 		# set target vector
 		if dir == RIGHT:
-			p[lst_len].target_pos.y = 4-(ln-lst_len)+overlay
+			p[lst_len].target_pos.y = tile_column-(ln-lst_len)+overlay
 			p[lst_len].target_pos.x = p[lst_len].ps.x
 
 		elif dir == LEFT:
@@ -338,7 +360,7 @@ func set_target_num(p, dir):
 			#print(p[lst_len].ps, "---------", p[lst_len].target_pos)
 
 		elif dir == DOWN:
-			p[lst_len].target_pos.x = 4-(ln-lst_len)+overlay
+			p[lst_len].target_pos.x = tile_row-(ln-lst_len)+overlay
 			p[lst_len].target_pos.y = p[lst_len].ps.y
 		elif dir == UP:
 			p[lst_len].target_pos.x = ln-lst_len-overlay-1
@@ -359,21 +381,16 @@ func _process(delta):
 
 	if start:
 		time += delta * time_direction
-		#print("---------time--------------")
-		#print(time)
-		# print("Start Move")
-		for tile in instance_list:
-			move_target = get_target_vector(tile)
 
-			tile.position = lerp(tile.position, move_target, time / 0.5)
-
+		move_tile()
 
 		if is_all_stop():
 			print("all stop")
 			start = false
 			time = 0
 			if is_move():
-				new_tile()
+				pass
+				#new_tile()
 			print("---------after all stop------------")
 			for i in instance_list:
 				print("vec: ", i.ps, "pos", i.position, "num: ", i.get_num())
