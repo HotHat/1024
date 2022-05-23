@@ -105,7 +105,7 @@ func _on_tile_update_text(tile):
 func _ready():
 	randomize()
 	connect("swipe_ready", self, "_on_swipe_ready")
-	var bg = $Background.position
+	#var bg = $Background.position
 	#pos_matrix = [
 	#	[$Background/Pos00.position+bg, $Background/Pos01.position+bg, $Background/Pos02.position+bg, $Background/Pos03.position+bg],
 	#	[$Background/Pos10.position+bg, $Background/Pos11.position+bg, $Background/Pos12.position+bg, $Background/Pos13.position+bg],
@@ -117,7 +117,7 @@ func _ready():
 	var margin = 50
 	var wd = min(sz.x, sz.y) - margin*2
 	
-	$DrawBackground.position = Vector2(margin, sz.y/2-wd/2)
+	#$DrawBackground.position = Vector2(margin, sz.y/2-wd/2)
 	$DrawBackground.set_size(Vector2(wd, wd))
 	tile_size = $DrawBackground.get_tile_size()
 
@@ -134,6 +134,9 @@ func _ready():
 	
 	for i in instance_list:
 		print(i.position)
+		
+		
+	#$UI/HomeButton.set_modulate(Color("#ff0000"))
 	pass # Replace with function body.
 
 
@@ -409,3 +412,18 @@ func _input(event):
 			else:
 				emit_signal("swipe_ready", UP)
 
+
+
+# Signal connect
+func _on_HomeButton_pressed():
+	print("HomeButton Pressed")
+	pass
+	
+func _on_ResetButton_pressed():
+	print("ResetButton Pressed")
+	pass	
+
+func _on_ReloadButton_pressed():
+	print("ReloadButton Pressed")
+	
+	
