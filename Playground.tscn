@@ -53,6 +53,8 @@ text = "2048"
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
 
+[node name="Tile" type="Node" parent="."]
+
 [connection signal="pressed" from="UI/HomeButton" to="." method="_on_HomeButton_pressed"]
 [connection signal="pressed" from="UI/ResetButton" to="." method="_on_ResetButton_pressed"]
 [connection signal="pressed" from="UI/ReloadButton" to="." method="_on_ReloadButton_pressed"]

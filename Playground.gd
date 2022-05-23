@@ -67,6 +67,7 @@ func is_fail():
 	pass
 
 func init_tile_matrix():
+	tile_matrix = []
 	for x in range(tile_row):
 		var i = []
 		for y in range(tile_column):
@@ -74,14 +75,17 @@ func init_tile_matrix():
 		tile_matrix.append(i)
 		
 func print_tile_matrix():
+	print("--------------show tile matrix-----------")
 	for x in range(tile_row):
 		for y in range(tile_column):
 			var i = tile_matrix[x][y]
 			if i == null:
-				print(null)
+				printt(null)
 			else:
-				print(i.ps, i.get_num())
-		print("-------------")
+				printt("tile: ", i, " pos: ", i.ps, "num: ", i.get_num())
+		print("-----------------------")
+	
+	print("-------------end------------")
 		
 func move_tile():
 	for x in range(tile_row):
@@ -125,7 +129,7 @@ func new_tile():
 		
 	t.position = pos_matrix[int(rp.x)][int(rp.y)]
 	t.ps = rp
-	add_child(t)
+	$Tile.add_child(t)
 	print("add tile at ", rp)
 	# instance_list.append(t)
 	tile_matrix[rp.x][rp.y] = t
@@ -137,7 +141,7 @@ func add_tile(row, col):
 	t.set_text("2")
 	t.position = pos_matrix[int(rp.x)][int(rp.y)]
 	t.ps = rp
-	add_child(t)
+	$Tile.add_child(t)
 	# instance_list.append(t)
 	tile_matrix[rp.x][rp.y] = t
 
@@ -155,6 +159,17 @@ func _on_tile_update_text(tile):
 	if tile.get_num() >= GAME_TARGET:
 		print("Game Success")
 
+func init_tile():
+	new_tile()
+	new_tile()
+	#add_tile(2, 0)
+	#add_tile(2, 1)
+	#add_tile(2, 2)
+	#add_tile(2, 3)
+	#add_tile(1, 2)
+	#add_tile(3, 2)
+	#add_tile(0, 2)
+	#add_tile(2, 2)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -181,17 +196,8 @@ func _ready():
 	pos_matrix = $DrawBackground.get_pos_matrix()
 	print(pos_matrix)
 	
+	init_tile()
 	
-	new_tile()
-	new_tile()
-	#add_tile(2, 0)
-	#add_tile(2, 1)
-	#add_tile(2, 2)
-	#add_tile(2, 3)
-	#add_tile(1, 2)
-	#add_tile(3, 2)
-	#add_tile(0, 2)
-	#add_tile(2, 2)
 	#print(point1)
 	#print(point2)
 	print_tile_matrix()
@@ -240,18 +246,19 @@ func finish_tile(tile):
 	#print("ps: ", tile.ps)
 	#print("---------finish tile-----------")
 	#print(tile.ps, " to ", tile.target_pos, "; up: ", tile.is_update, " fin: ", tile.is_finish)
-	tile_matrix[tile.ps.x][tile.ps.y] = null
-	tile.ps = tile.target_pos
+
 	if tile.is_update:
 		_on_tile_update_text(tile)
 		tile.zoom()
 		play_match()
 		
 	if tile.is_finish:
+		$Tile.remove_child(tile)
 		tile.queue_free()
-
-	if not tile.is_finish:
+	else:
+		tile.ps = tile.target_pos
 		tile_matrix[tile.ps.x][tile.ps.y] = tile
+
 
 func is_all_stop():
 	var p = []
@@ -288,9 +295,14 @@ func is_all_stop():
 					return false
 				else:
 					p.append(tile)
+	
 	for i in p:
+		tile_matrix[i.ps.x][i.ps.y] = null
+		
+	for i in p:
+		print("tile: ", i, " pos:", i.ps, " is_upadte: ", i.is_update, " is_fin: ", i.is_finish, "  target: ", i.target_pos)
 		finish_tile(i)
-		#print("is_finish: ", tile.is_finish, " is_update: ", tile.is_update)
+	print_tile_matrix()
 	return true
 
 
@@ -333,7 +345,7 @@ func set_target_vector():
 				print(j.ps, " to ", j.target_pos, "; up: ", j.is_update, " fin: ", j.is_finish)
 			print("------------------end move target---------------")
 		# if len(p) > 0:
-	pass
+
  
 # set
 func set_target_num(p, dir):
@@ -404,6 +416,7 @@ func _process(delta):
 			if is_move():
 				#pass
 				new_tile()
+			print_tile_matrix()
 			print("---------after all stop------------")
 			for i in instance_list:
 				print("vec: ", i.ps, "pos", i.position, "num: ", i.get_num())
@@ -442,7 +455,10 @@ func _input(event):
 			else:
 				emit_signal("swipe_ready", UP)
 
-
+func delete_children():
+	for n in $Tile.get_children():
+		$Tile.remove_child(n)
+		n.queue_free()
 
 # Signal connect
 func _on_HomeButton_pressed():
@@ -451,6 +467,11 @@ func _on_HomeButton_pressed():
 	
 func _on_ResetButton_pressed():
 	print("ResetButton Pressed")
+	init_tile_matrix()
+	delete_children()
+	init_tile()
+	print_tile_matrix()
+	print($Tile.get_child_count())
 	pass	
 
 func _on_ReloadButton_pressed():
