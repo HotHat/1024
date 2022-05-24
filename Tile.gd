@@ -34,10 +34,10 @@ var size = Vector2(142, 142)
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	style.set_corner_radius_all(RADIUS)
-	if randf() > 0.95:
-		set_second()
-	else:
-		set_first()
+	#if randf() > 0.95:
+	#	set_second()
+	#else:
+	#	set_first()
 	#style.bg_color = Color(0, 1, 0.8, 1)
 	self.size = size
 	POSITION = Vector2(-(size.x/2), -(size.y/2))

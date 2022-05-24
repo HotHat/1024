@@ -18,6 +18,7 @@ var need_move = false
 var time_direction = 1
 var Tile = preload("res://Tile.tscn")
 var CorrectSound = preload("res://audio/tile_match.wav")
+var TileData = preload("res://TileData.gd")
 
 var velocity = Vector2()
 
@@ -30,7 +31,7 @@ var tile_row = 4
 var tile_column = 4
 var tile_matrix = []
 
-var instance_list = []
+var pre_instance_list = []
 
 func pause():
 	$UI/Dialog.visible = true
@@ -132,6 +133,11 @@ func is_full():
 func new_tile():
 	var t = Tile.instance()
 	t.set_size(tile_size)
+	if randf() > 0.95:
+		t.set_second()
+	else:
+		t.set_first()
+		
 	var rp = rand_pos()
 
 	if is_full():
@@ -148,11 +154,11 @@ func new_tile():
 	# instance_list.append(t)
 	tile_matrix[rp.x][rp.y] = t
 
-func add_tile(row, col):
+func add_tile(row, col, text="2"):
 	var t = Tile.instance()
 	t.set_size(tile_size)
 	var rp = Vector2(row, col)
-	t.set_text("2")
+	t.set_text(text)
 	t.position = pos_matrix[int(rp.x)][int(rp.y)]
 	t.ps = rp
 	$Tile.add_child(t)
@@ -311,8 +317,10 @@ func is_all_stop():
 					return false
 				else:
 					p.append(tile)
-	
+	pre_instance_list = []
 	for i in p:
+		var t = TileData.new(i.ps, i.get_num())
+		pre_instance_list.append(t)
 		tile_matrix[i.ps.x][i.ps.y] = null
 		
 	for i in p:
@@ -433,10 +441,10 @@ func _process(delta):
 				#pass
 				new_tile()
 			print_tile_matrix()
-			print("---------after all stop------------")
-			for i in instance_list:
-				print("vec: ", i.ps, "pos", i.position, "num: ", i.get_num())
-			pass
+			#print("---------after all stop------------")
+			#for i in instance_list:
+			#	print("vec: ", i.ps, "pos", i.position, "num: ", i.get_num())
+			#pass
 
 func _input(event):
 	if is_pause():
@@ -485,7 +493,13 @@ func _on_HomeButton_pressed():
 	
 func _on_ResetButton_pressed():
 	print("ResetButton Pressed")
-
+	if pre_instance_list.empty():
+		return
+	init_tile_matrix()
+	delete_children()
+	for i in pre_instance_list:
+		add_tile(i.pos.x, i.pos.y, str(i.num))
+	pre_instance_list = []
 
 func _on_ReloadButton_pressed():
 	print("ReloadButton Pressed")
