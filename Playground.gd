@@ -22,6 +22,7 @@ var CorrectSound = preload("res://audio/tile_match.wav")
 var velocity = Vector2()
 
 var touch_start_pos
+var is_pause = false
 
 var pos_matrix = []
 var tile_size = Vector2()
@@ -30,6 +31,19 @@ var tile_column = 4
 var tile_matrix = []
 
 var instance_list = []
+
+func pause():
+	$UI/Dialog.visible = true
+	is_pause = true
+	set_process(false)
+	
+func recover():
+	$UI/Dialog.visible = false
+	is_pause = false
+	set_process(true)
+	
+func is_pause():
+	return is_pause
 
 func rand_pos():
 	var rn = randi() % (tile_row*tile_column)
@@ -176,6 +190,8 @@ func _ready():
 	randomize()
 	init_tile_matrix()
 	connect("swipe_ready", self, "_on_swipe_ready")
+	$UI/Dialog.connect("confirm_pressed", self, "_on_Confirm_pressed")
+	$UI/Dialog.connect("cancel_pressed", self, "_on_Cancel_pressed")
 	#var bg = $Background.position
 	#pos_matrix = [
 	#	[$Background/Pos00.position+bg, $Background/Pos01.position+bg, $Background/Pos02.position+bg, $Background/Pos03.position+bg],
@@ -423,6 +439,8 @@ func _process(delta):
 			pass
 
 func _input(event):
+	if is_pause():
+		return
 	#print("touch detect")
 	if event is InputEventScreenTouch and event.is_pressed():
 		touch_start_pos = event.position
@@ -467,14 +485,21 @@ func _on_HomeButton_pressed():
 	
 func _on_ResetButton_pressed():
 	print("ResetButton Pressed")
+
+
+func _on_ReloadButton_pressed():
+	print("ReloadButton Pressed")
+	pause()
+	
+func _on_Confirm_pressed():
+	print("confirm pressed")
 	init_tile_matrix()
 	delete_children()
 	init_tile()
 	print_tile_matrix()
-	print($Tile.get_child_count())
-	pass	
+	recover()
 
-func _on_ReloadButton_pressed():
-	print("ReloadButton Pressed")
-	
+func _on_Cancel_pressed():
+	print("cancel pressed")	
+	recover()
 	
