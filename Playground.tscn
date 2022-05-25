@@ -14,6 +14,8 @@ font_data = ExtResource( 6 )
 
 [node name="Playground" type="Node2D"]
 script = ExtResource( 2 )
+tile_row = 4
+tile_column = 4
 
 [node name="UI" type="Node2D" parent="."]
 position = Vector2( 0, 50 )
@@ -83,7 +85,7 @@ is_confirm = true
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
 
 [node name="DrawBackground" parent="." instance=ExtResource( 3 )]
-position = Vector2( 50, 380 )
+position = Vector2( 50, 360 )
 
 [node name="Tile" type="Node" parent="."]
 

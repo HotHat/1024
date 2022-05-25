@@ -27,8 +27,8 @@ var is_pause = false
 
 var pos_matrix = []
 var tile_size = Vector2()
-var tile_row = 5
-var tile_column = 3
+export (int) var tile_row = 8
+export (int) var tile_column = 8
 var tile_matrix = []
 
 var pre_instance_list = []
@@ -207,6 +207,13 @@ func new_tile():
 func add_tile(row, col, text="2"):
 	var t = Tile.instance()
 	t.set_size(tile_size)
+	if tile_row == 9:
+		t.set_font_size(24)
+	elif tile_row == 8:
+		t.set_font_size(28)
+	elif tile_row == 6:
+		t.set_font_size(32)
+	
 	var rp = Vector2(row, col)
 	t.set_text(text)
 	t.position = pos_matrix[int(rp.x)][int(rp.y)]
@@ -246,7 +253,7 @@ func init_tile():
 func init_fail_tiles():
 	add_tile(0, 0, '16')
 	add_tile(0, 1, '4')
-	add_tile(0, 2, '2')
+	add_tile(0, 2, '1024')
 	#####
 	add_tile(1, 0, '64')
 	add_tile(1, 1, '16')
@@ -260,9 +267,9 @@ func init_fail_tiles():
 	add_tile(3, 1, '8')
 	add_tile(3, 2, '4')
 	#####
-	add_tile(4, 0, '8')
-	add_tile(4, 1, '4')
-	add_tile(4, 2, '2')
+	#add_tile(4, 0, '8')
+	#add_tile(4, 1, '4')
+	#add_tile(4, 2, '2')
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -280,9 +287,13 @@ func _ready():
 	var sz = get_viewport_rect().size
 	var margin = 50
 	var wd = min(sz.x, sz.y) - margin*2
+	var wh = sz.y - $DrawBackground.position.y
 	
 	#$DrawBackground.position = Vector2(margin, sz.y/2-wd/2)
-	$DrawBackground.set_row_column(tile_row, tile_column, Vector2(wd, wd))
+	var bg_size = Vector2(wd, wd)
+	if tile_row > tile_column:
+		bg_size = Vector2(wd, wh)
+	$DrawBackground.set_row_column(tile_row, tile_column, bg_size)
 	tile_size = $DrawBackground.get_tile_size()
 
 	print("draw_background position in playground: ", $DrawBackground.position)
@@ -503,14 +514,14 @@ func _process(delta):
 		start = false
 		time = 0
 		print_tile_matrix()
-		
-		if is_end():
-			print('game is end...')
-			gg_pause()
-			
-		if is_move():
-			#pass
-			new_tile()
+		if is_full():
+			if is_end():
+				print('game is end...')
+				gg_pause()
+		else:
+			if is_move():
+				new_tile()
+				pass
 
 			#print("---------after all stop------------")
 			#for i in instance_list:
@@ -564,7 +575,7 @@ func _on_HomeButton_pressed():
 	
 func _on_ResetButton_pressed():
 	print("ResetButton Pressed")
-	if pre_instance_list.empty():
+	if pre_instance_list.empty() or is_pause():
 		return
 	init_tile_matrix()
 	delete_children()

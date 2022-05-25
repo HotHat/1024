@@ -48,6 +48,12 @@ func _ready():
 func set_size(size):
 	self.size = size
 	pass
+	
+func set_font_size(size):
+	var dynamic_font = DynamicFont.new()
+	dynamic_font.font_data = load("res://assert/Lato-Bold.ttf")
+	dynamic_font.size = size
+	$"Label".set("custom_fonts/font", dynamic_font)
 
 func set_first():
 	set_text(str(FIRST))

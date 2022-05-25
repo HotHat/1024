@@ -10,14 +10,12 @@ const RADIUS = 5
 const POSITION = Vector2(0, 0)
 
 
-export(int) var width =  500
-export(int) var height =  500
 export(int) var tile_row = 4
 export(int) var tile_column = 4
 
 var item_temp = preload("res://background/BackgroundItem.tscn")
 var style = StyleBoxFlat.new()
-var size = Vector2(width, width)
+var size = Vector2(500, 500)
 var margin = 10
 var sub_tile_width = 0
 var sub_tile_height = 0
@@ -33,11 +31,26 @@ func _ready():
 	pass # Replace with function body.
 
 func draw_children():
-	sub_tile_height = int((width - (tile_row+1)*margin) / tile_row)
-	sub_tile_width = int((height - (tile_column+1)*margin) / tile_column)
+	sub_tile_height = int((size.y - (tile_row+1)*margin) / tile_row)
+	sub_tile_width = int((size.x - (tile_column+1)*margin) / tile_column)
 	
+	if sub_tile_width > sub_tile_height:
+		sub_tile_width = sub_tile_height
+		var old_size_x = self.size.x
+		self.size.x = (tile_column+1)*margin + tile_column*sub_tile_width
+		self.position.x += int((old_size_x-self.size.x)/2)
+	elif sub_tile_height > sub_tile_width:
+		sub_tile_height = sub_tile_width
+		var old_size_y = self.size.y
+		self.size.y = (tile_row+1)*margin + tile_row*sub_tile_height
+		self.position.y += int((old_size_y-self.size.y)/2)
+	else:
+		self.size.x = min(self.size.x, self.size.y)
+		self.size.y = self.size.x
+		
 	print("sub_tile_width: ", sub_tile_width)
 	print("sub_tile_height: ", sub_tile_height)
+	print("draw_background size: ", self.size)
 	
 	for row in range(tile_row):
 		var row_mtr = []
@@ -59,6 +72,9 @@ func get_tile_height():
 func get_tile_size():
 	return Vector2(sub_tile_width, sub_tile_height)
 
+func get_margin():
+	return margin
+
 func get_pos_matrix():
 	return sub_tile_pos_matrix
 
@@ -71,8 +87,6 @@ func set_row_column(row, col, size):
 	update()
 
 func set_size(size):
-	width = size.x
-	height = size.y
 	self.size = size
 #	draw_children()
 
