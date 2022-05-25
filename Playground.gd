@@ -3,7 +3,7 @@ extends Node2D
 
 enum {LEFT, RIGHT, UP, DOWN}
 const SWIPE_MINI_LENGTH = 100
-const GAME_TARGET = 8
+var GAME_TARGET = 128
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
@@ -37,11 +37,21 @@ func pause():
 	$UI/Dialog.visible = true
 	is_pause = true
 	set_process(false)
+
+func win_pause():
+	$UI/Win.visible = true
+	is_pause = true
+	set_process(false)
 	
 func recover():
 	$UI/Dialog.visible = false
 	is_pause = false
 	set_process(true)
+
+func win_recover():
+	$UI/Win.visible = false
+	is_pause = false
+	set_process(true)	
 	
 func is_pause():
 	return is_pause
@@ -176,7 +186,10 @@ func _on_tile_update_text(tile):
 	tile.is_update = false
 	tile.update_text()
 	print("tile number update to ", tile.get_num())
+	# is success
 	if tile.get_num() >= GAME_TARGET:
+		win_pause()
+		GAME_TARGET *= 2
 		print("Game Success")
 
 func init_tile():
@@ -195,16 +208,13 @@ func init_tile():
 func _ready():
 	randomize()
 	init_tile_matrix()
+	# signal connect
 	connect("swipe_ready", self, "_on_swipe_ready")
 	$UI/Dialog.connect("confirm_pressed", self, "_on_Confirm_pressed")
 	$UI/Dialog.connect("cancel_pressed", self, "_on_Cancel_pressed")
-	#var bg = $Background.position
-	#pos_matrix = [
-	#	[$Background/Pos00.position+bg, $Background/Pos01.position+bg, $Background/Pos02.position+bg, $Background/Pos03.position+bg],
-	#	[$Background/Pos10.position+bg, $Background/Pos11.position+bg, $Background/Pos12.position+bg, $Background/Pos13.position+bg],
-	#	[$Background/Pos20.position+bg, $Background/Pos21.position+bg, $Background/Pos22.position+bg, $Background/Pos23.position+bg],
-	#	[$Background/Pos30.position+bg, $Background/Pos31.position+bg, $Background/Pos32.position+bg, $Background/Pos33.position+bg],
-	#]
+	$UI/Win.connect("confirm_pressed", self, "_on_win_Confirm_pressed")
+	$UI/Win.connect("cancel_pressed", self, "_on_win_Cancel_pressed")
+	
 	print("view_port: ", get_viewport_rect().size)
 	var sz = get_viewport_rect().size
 	var margin = 50
@@ -223,12 +233,6 @@ func _ready():
 	#print(point1)
 	#print(point2)
 	print_tile_matrix()
-#	for i in instance_list:
-#		print(i.position)
-
-
-	#$UI/HomeButton.set_modulate(Color("#ff0000"))
-	pass # Replace with function body.
 
 
 func set_swipe(dir):
@@ -517,3 +521,14 @@ func _on_Cancel_pressed():
 	print("cancel pressed")	
 	recover()
 	
+func _on_win_Confirm_pressed():
+	print("confirm pressed")
+	win_recover()
+
+func _on_win_Cancel_pressed():
+	print("cancel pressed")	
+	init_tile_matrix()
+	delete_children()
+	init_tile()
+	print_tile_matrix()
+	win_recover()	
