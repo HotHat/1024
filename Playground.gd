@@ -51,8 +51,18 @@ func recover():
 func win_recover():
 	$UI/Win.visible = false
 	is_pause = false
-	set_process(true)	
+	set_process(true)
+
+func gg_pause():
+	$UI/GG.visible = true
+	is_pause = true
+	set_process(false)
 	
+func gg_recover():
+	$UI/GG.visible = false
+	is_pause = false
+	set_process(true)	
+
 func is_pause():
 	return is_pause
 
@@ -94,8 +104,33 @@ func set_move_status():
 				return
 	need_move = false
 	
-func is_fail():
-	pass
+func is_end():
+	for row in range(tile_row):
+		for col in range(tile_column):
+			# left
+			var left =  null
+			if col > 0:
+				left = tile_matrix[row][col-1].get_num()
+			# right
+			var right = null
+			if col < tile_column-1:
+				right = tile_matrix[row][col+1].get_num()
+			# up
+			var up = null
+			if row > 0:
+				up = tile_matrix[row-1][col].get_num()
+			# down	
+			var down = null 
+			if row < tile_row-1:
+				down = tile_matrix[row+1][col].get_num()
+				
+			var n = tile_matrix[row][col].get_num()
+			if n == left or n == right or n == up or n == down:
+				print('continue...')
+			else:
+				print('GG......')
+				return true
+	return false
 
 func init_tile_matrix():
 	tile_matrix = []
@@ -208,6 +243,26 @@ func init_tile():
 	#add_tile(3, 2)
 	#add_tile(0, 2)
 	#add_tile(2, 2)
+func init_fail_tiles():
+	add_tile(0, 0, '16')
+	add_tile(0, 1, '4')
+	add_tile(0, 2, '2')
+	#####
+	add_tile(1, 0, '64')
+	add_tile(1, 1, '16')
+	add_tile(1, 2, '8')
+	#####
+	add_tile(2, 0, '2')
+	add_tile(2, 1, '32')
+	add_tile(2, 2, '128')
+	#####
+	add_tile(3, 0, '16')
+	add_tile(3, 1, '8')
+	add_tile(3, 2, '4')
+	#####
+	add_tile(4, 0, '8')
+	add_tile(4, 1, '4')
+	add_tile(4, 2, '2')
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -219,6 +274,7 @@ func _ready():
 	$UI/Dialog.connect("cancel_pressed", self, "_on_Cancel_pressed")
 	$UI/Win.connect("confirm_pressed", self, "_on_win_Confirm_pressed")
 	$UI/Win.connect("cancel_pressed", self, "_on_win_Cancel_pressed")
+	$UI/GG.connect("confirm_pressed", self, "_on_gg_Confirm_pressed")
 	
 	print("view_port: ", get_viewport_rect().size)
 	var sz = get_viewport_rect().size
@@ -233,8 +289,8 @@ func _ready():
 	pos_matrix = $DrawBackground.get_pos_matrix()
 	print(pos_matrix)
 	
-	init_tile()
-	
+	#init_tile()
+	init_fail_tiles()
 	#print(point1)
 	#print(point2)
 	print_tile_matrix()
@@ -434,22 +490,28 @@ func get_target_vector(tile):
 func _process(delta):
 	# print(delta)
 	if not start:
-		pass
+		return
 		#get_input()
 
-	if start:
-		time += delta * time_direction
 
-		move_tile()
+	time += delta * time_direction
 
-		if is_all_stop():
-			print("all stop")
-			start = false
-			time = 0
-			if is_move():
-				#pass
-				new_tile()
-			print_tile_matrix()
+	move_tile()
+
+	if is_all_stop():
+		print("all stop")
+		start = false
+		time = 0
+		print_tile_matrix()
+		
+		if is_end():
+			print('game is end...')
+			gg_pause()
+			
+		if is_move():
+			#pass
+			new_tile()
+
 			#print("---------after all stop------------")
 			#for i in instance_list:
 			#	print("vec: ", i.ps, "pos", i.position, "num: ", i.get_num())
@@ -513,13 +575,16 @@ func _on_ResetButton_pressed():
 func _on_ReloadButton_pressed():
 	print("ReloadButton Pressed")
 	pause()
-	
-func _on_Confirm_pressed():
-	print("confirm pressed")
+
+func new_game():
 	init_tile_matrix()
 	delete_children()
 	init_tile()
 	print_tile_matrix()
+	
+func _on_Confirm_pressed():
+	print("confirm pressed")
+	new_game()
 	recover()
 
 func _on_Cancel_pressed():
@@ -532,8 +597,9 @@ func _on_win_Confirm_pressed():
 
 func _on_win_Cancel_pressed():
 	print("cancel pressed")	
-	init_tile_matrix()
-	delete_children()
-	init_tile()
-	print_tile_matrix()
-	win_recover()	
+	new_game()
+	win_recover()
+
+func _on_gg_Confirm_pressed():
+	new_game()
+	gg_recover()
