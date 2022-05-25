@@ -27,8 +27,8 @@ var is_pause = false
 
 var pos_matrix = []
 var tile_size = Vector2()
-var tile_row = 4
-var tile_column = 4
+var tile_row = 5
+var tile_column = 3
 var tile_matrix = []
 
 var pre_instance_list = []
@@ -57,8 +57,14 @@ func is_pause():
 	return is_pause
 
 func rand_pos():
-	var rn = randi() % (tile_row*tile_column)
-	return Vector2(int(rn/tile_row), rn%tile_column)
+	var p = []
+	for x in range(tile_row):
+		for y in range(tile_column):
+			if tile_matrix[x][y] == null:
+				p.append(Vector2(x, y))
+	var n = len(p)
+	var rn = randi() % n
+	return p[rn]
 
 func play_match():
 	$AudioStreamPlayer2D.stream = CorrectSound
@@ -141,6 +147,9 @@ func is_full():
 		return false
 
 func new_tile():
+	if is_full():
+		return
+		
 	var t = Tile.instance()
 	t.set_size(tile_size)
 	if randf() > 0.95:
@@ -149,10 +158,6 @@ func new_tile():
 		t.set_first()
 		
 	var rp = rand_pos()
-
-	if is_full():
-		return
-	# if exist run againt/
 	while is_exist(rp):
 		print("new tile againt")
 		rp = rand_pos()
