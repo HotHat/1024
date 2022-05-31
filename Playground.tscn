@@ -61,6 +61,9 @@ margin_left = 126.0
 margin_top = 264.0
 margin_right = 126.0
 margin_bottom = 264.0
+title = "重新开始？"
+confirm_text = "是"
+cancel_text = "不是"
 
 [node name="Win" parent="UI" instance=ExtResource( 7 )]
 visible = false

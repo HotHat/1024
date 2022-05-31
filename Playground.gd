@@ -271,18 +271,13 @@ func init_fail_tiles():
 	#add_tile(4, 1, '4')
 	#add_tile(4, 2, '2')
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	randomize()
-	init_tile_matrix()
-	# signal connect
-	connect("swipe_ready", self, "_on_swipe_ready")
-	$UI/Dialog.connect("confirm_pressed", self, "_on_Confirm_pressed")
-	$UI/Dialog.connect("cancel_pressed", self, "_on_Cancel_pressed")
-	$UI/Win.connect("confirm_pressed", self, "_on_win_Confirm_pressed")
-	$UI/Win.connect("cancel_pressed", self, "_on_win_Cancel_pressed")
-	$UI/GG.connect("confirm_pressed", self, "_on_gg_Confirm_pressed")
-	
+func init(row, col):
+	tile_row = row
+	tile_column = col
+	create_tile_map()
+	return get_tree().get_current_scence()
+
+func create_tile_map():
 	print("view_port: ", get_viewport_rect().size)
 	var sz = get_viewport_rect().size
 	var margin = 50
@@ -305,6 +300,21 @@ func _ready():
 	#print(point1)
 	#print(point2)
 	print_tile_matrix()
+	
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	randomize()
+	init_tile_matrix()
+	# signal connect
+	connect("swipe_ready", self, "_on_swipe_ready")
+	$UI/Dialog.connect("confirm_pressed", self, "_on_Confirm_pressed")
+	$UI/Dialog.connect("cancel_pressed", self, "_on_Cancel_pressed")
+	$UI/Win.connect("confirm_pressed", self, "_on_win_Confirm_pressed")
+	$UI/Win.connect("cancel_pressed", self, "_on_win_Cancel_pressed")
+	$UI/GG.connect("confirm_pressed", self, "_on_gg_Confirm_pressed")
+	
+	create_tile_map()
+	
 
 
 func set_swipe(dir):
@@ -570,7 +580,7 @@ func delete_children():
 
 # Signal connect
 func _on_HomeButton_pressed():
-	print("HomeButton Pressed")
+	get_tree().change_scene("res://GridSelector.tscn")
 	pass
 	
 func _on_ResetButton_pressed():
