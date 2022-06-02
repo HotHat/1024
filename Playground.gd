@@ -295,8 +295,8 @@ func create_tile_map():
 	pos_matrix = $DrawBackground.get_pos_matrix()
 	print(pos_matrix)
 	
-	#init_tile()
-	init_fail_tiles()
+	init_tile()
+	#init_fail_tiles()
 	#print(point1)
 	#print(point2)
 	print_tile_matrix()
